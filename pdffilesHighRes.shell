@@ -1,0 +1,38 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
+
+PS C:\Users\PCEL SERVICE> # Run as Administrator
+PS C:\Users\PCEL SERVICE>
+PS C:\Users\PCEL SERVICE> $customFormName = "Sheet4444x2644"
+PS C:\Users\PCEL SERVICE> # Dimensions in tenths of millimeters (1 inch = 254 tenths of mm)
+PS C:\Users\PCEL SERVICE> # 4444 px / 300 DPI = 14.813 in → × 254 = ~3762
+PS C:\Users\PCEL SERVICE> # 2644 px / 300 DPI = 8.813 in → × 254 = ~2239
+PS C:\Users\PCEL SERVICE> $width = 3762
+PS C:\Users\PCEL SERVICE> $height = 2239
+PS C:\Users\PCEL SERVICE>
+PS C:\Users\PCEL SERVICE> # Registry path for the custom form
+PS C:\Users\PCEL SERVICE> $formRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Print\Forms\$customFormName"
+PS C:\Users\PCEL SERVICE>
+PS C:\Users\PCEL SERVICE> # Check if already exists
+PS C:\Users\PCEL SERVICE> if (!(Test-Path $formRegPath)) {
+>>     # Create registry key for form
+>>     New-Item -Path $formRegPath -Force | Out-Null
+>>
+>>     # Create registry properties
+>>     New-ItemProperty -Path $formRegPath -Name "Name" -Value $customFormName -PropertyType String -Force | Out-Null
+>>     New-ItemProperty -Path $formRegPath -Name "Size" -Value ([int[]]@($width, $height)) -PropertyType DWord -Force | Out-Null
+>>     New-ItemProperty -Path $formRegPath -Name "ImageableArea" -Value ([int[]]@(0, 0, $width, $height)) -PropertyType DWord -Force | Out-Null
+>>
+>>     Write-Host "✅ Custom paper size '$customFormName' added."
+>> } else {
+>>     Write-Host "ℹ️ Custom paper size '$customFormName' already exists."
+>> }
+ℹ️ Custom paper size 'Sheet4444x2644' already exists.
+PS C:\Users\PCEL SERVICE>
+PS C:\Users\PCEL SERVICE> # Restart spooler to apply
+PS C:\Users\PCEL SERVICE> Restart-Service -Name spooler
+PS C:\Users\PCEL SERVICE> Write-Host "🔄 Print spooler restarted. Check Revit > Print > Paper Sizes."
+🔄 Print spooler restarted. Check Revit > Print > Paper Sizes.
+PS C:\Users\PCEL SERVICE>
